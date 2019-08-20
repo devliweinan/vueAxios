@@ -1,0 +1,135 @@
+axios的基本使用
+    请求方法：get,post,put,patch,delete
+    get:获取数据
+    post：提交数据（表单提交+文件上传）（新建）
+    put：更新数据（所有的数据推送到后台）（修改更新）
+    patch：跟新数据（只将修改的数据推送给后台）（修改更新）
+    delete:删除数据
+
+    get的两种不同写法：
+      注意：传参的时候需要params。固定写法
+        axios.get(url,config)
+        1，axios.get('data.json',{params:{id:12,queryKey:''}).then((res)=>{},(err)=>{}) 
+        //路径;http://loaclhost:8080/data.json?id=12&queryKey=''
+        2,axios({
+            url:'data.json',
+            method:'get',
+            params:{
+              id:12,
+              queryKey:''  
+            }
+        }).then((res)=>{},(err)=>{})
+    
+    post：请求参数的两种格式：form-data(表单提交(图片或文件上传))和 application/json 
+      1,application/json提交数据
+        let data={
+          id:12,
+          userName:'axios'
+        }
+        axios.post("url",data,config).then((res)=>{})
+        axios({
+          method:'post',
+          url:'url',
+          data:data
+        }).then(res=>{})
+      2,form-data发送数据的请求
+        let formData = new FormData();
+        for(let key in data){//遍历data并使用append方法把key和value添加到FormDate对象中
+          formData.append(key,data[key]);
+        }
+    put和patch（和post一样）、
+
+    delete请求(删除) 传入参数的不一样params和data
+      axios.delete(url,config)
+      需要子url后拼接参数
+      axios.delete("url",{params:{id:12,keyQuery:'axios'}}).then(res=>{});
+      不在url中传值，在请求体重传值
+      axios.delete("url",{data:{id:12,keyQuery:'axios'}}).then(res=>{});
+
+    并发请求：同时进行多个请求，并同意处理返回值。
+    使用api:axios.all([])并发处理多个请求,和axios.spread()处理分割请求的数据。
+      axios.all([axios.get('/data.json'),axios.get('/city.json')])
+      .then(axios.spread((dataRes,cityRes)=>{
+
+      }))
+
+
+axios实例：可以创建axios实例并配置一些公共的参数config，从而简化代码(一般用于多个接口规范的项目)。
+  let instance = axios.create({
+    baseURL:'http://loaclhost:8080',
+    timeout:1000,
+  })
+  instance.get('/data.json').then(res=>{});http://loaclhost:8080/data.json
+axios实例配置参数：
+  axios.create({
+    baseURL:'',//请求的基本地址
+    timeout:2000, //毫秒 返回401.超时
+    url:''，请求路径
+    method:'get', //get. post. put. patch. delete.
+    headers:{//设置请求头
+      token:'', //进行登录授权
+    }, 
+    params:{}, //会将参数拼接在url
+    data:{}    //会把请求参数放入请求头里。
+  })
+
+axios全局配置(一般修改这两处)
+  axios.defaults.timeout=1000;
+  axios.defaults.baseURL = 'http://localhost:8080'
+
+配置优先级:全局配置<实例配置<请求配置
+
+
+axios的拦截器：一般是给axios实例添加拦截器。  
+  在请求或响应被处理之前拦截它们并进行处理
+
+请求拦截器：
+  axios.interceptors.request.use(config=>{
+    //在发送请求前拦截。需要return config
+
+    return config;
+  },err=>{
+    //请求发生错误的时候拦截：需要返回return Promise.reject(err);
+
+    return Promise.reject(err)
+  })
+响应拦截器：
+  axios.interceptors.response.use(res=>{
+    //请求成功对响应做处理。处理后的数据return出去
+
+    return res;
+  },err=>{
+    //响应错误。
+
+    return Promise.reject(err);
+  });
+
+捕获请求,响应错误：axios.get().then(res=>{}).catch(err=>{});
+
+取消拦截器：axios.interceptors.request.eject(interceptors); interceptors定义的拦截器名
+
+实例：登录状态的（token:''）或移动端请求时等待窗口显示隐藏。
+let instance = axios.create({});
+instance.interceptors.request.use(config=>{
+  config.headers.token = "";
+  return config;
+})
+
+
+错误处理：请求错误的时候进行的错误处理。
+  在实际开发中一般会添加一个统一的错误处理。请求错误和响应错误。请求拦截器和响应拦截器中处理错误
+    请求错误的状态码以4开头，常见：401（请求超时），404（not found）
+    响应错误的状态码以5开头：常见：500（系统错误），502（系统重启）
+
+取消请求：用于取消正在进行的http请求。（了解）
+  //创建带有取消功能的http请求
+  let source = axios.CancelToken.source();
+  axios.get('/data.json'{
+    cancelToken:source.token
+  }).then(res=>{
+    console.log(res)
+  }).catch(err=>{
+    console.log(err);
+  }) 
+  //取消请求.message会到catch中的err里。
+  source.cancel('message');
