@@ -17,6 +17,11 @@ export default new Router({
       path: '/contactList',
       name: 'ContactList',
       component:()=>import('@/pages/ContactList.vue')
+    },
+    {
+      path:'/validateHttp',
+      name:'ValidateHttp',
+      component:()=>import('@/test/validateHttp')
     }
   ]
 })
