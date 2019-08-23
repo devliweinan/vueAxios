@@ -1,0 +1,20 @@
+Priomise: resolve和reject表示这个函数执行完后正确返回的的值和错误返回的值。通过.then(resolve=>{})可以编写异步回调函数。promise中执行的都是同步的。
+    function proimse(){
+        return new Priomise((resolve,reject)=>{
+
+        })
+    }
+
+
+async函数返回一个Promise函数。简化promise的写法
+async function fun(){
+
+    return resolve  
+    throw reject  
+}
+await 一定是在async函数中使用，后面可以放任何表达式，一般情况下我们放的是一个promise对象或async函数。
+    返回promise对象的结果。意思是等待执行完成再执行下面的代码，（异步变同步，可以省略then的写法。）一个async函数中可以有无数个await。
+async function fn(){
+    let res1 = await new Promise((resolve,reject)=>{})
+    ....   需要等待res1返回结果后再执行下面的代码
+}

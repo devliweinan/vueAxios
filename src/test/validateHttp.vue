@@ -17,7 +17,7 @@
     </div>
 </template>
 <script>
-import { ContactList,ContactEdit,Popup } from 'vant'
+import { ContactList,ContactEdit,Toast,Popup } from 'vant'
 import axios from 'axios'
 export default {
     name:'contactList',
@@ -39,7 +39,6 @@ export default {
         //获取联系人列表
         async getList(){
             let res = await this.$Http.getContactList()
-            console.log(res);
             this.list=res.data;
             // this.instance.get('/contactList')
             // .then(res=>{
@@ -62,55 +61,82 @@ export default {
             this.editingContact = info
         },
         //保存联系人
-        onSave(info){
+        async onSave(info){
             if(this.isEdit){
                 //编辑保存
-                this.instance.put('/contact/edit',info)
-                .then(res=>{
-                    console.log(res.data)
-                    if(res.data.code === 200){
-                        Toast("保存成功")
-                        this.showEdit = false
-                        this.getList()
-                    }
-                })
-                .catch(()=>{
-                    Toast("请求失败，稍后重试123")
-                })
+                let res = await this.$Http.editContact(info)
+                console.log(res);
+                if(res.code === 200 ){
+                    this.showEdit = false
+                    await this.getList()
+                    Toast("保存成功")
+                    // setTimeout(()=>{
+                    //     Toast("保存成功")
+                    // },300)
+                    
+                }
+                // this.instance.put('/contact/edit',info)
+                // .then(res=>{
+                //     console.log(res.data)
+                //     if(res.data.code === 200){
+                //         Toast("保存成功")
+                //         this.showEdit = false
+                //         this.getList()
+                //     }
+                // })
+                // .catch(()=>{
+                //     Toast("请求失败，稍后重试123")
+                // })
             }else{
                 //新建保存
-                this.instance.post('/contact/new/json',info)
-                .then(res=>{
-                    console.log(res)
-                    if( res.data.code === 200 ){
-                        Toast("保存成功")
-                        this.showEdit = false
-                        this.getList()
-                    }
-                })
-                .catch(()=>{
-                    Toast("请求失败，稍后重试")
-                })
+                let res=await this.$Http.newContactForm(info,true)
+                console.log(res);
+                if(res.code === 200){
+                    this.showEdit = false
+                    await this.getList()
+                    Toast("保存成功")
+                }
+
+                
+                // this.instance.post('/contact/new/json',info)
+                // .then(res=>{
+                //     console.log(res)
+                //     if( res.data.code === 200 ){
+                //         Toast("保存成功")
+                //         this.showEdit = false
+                //         this.getList()
+                //     }
+                // })
+                // .catch(()=>{
+                //     Toast("请求失败，稍后重试")
+                // })
             }
         },
         //删除联系人
-        onDelete(info){
-            this.instance.delete('/contact',{params:{id:info.id}})
-            .then(res=>{
-                if(res.data.code === 200){
-                    Toast("删除成功")
-                    this.showEdit = false
-                    this.getList()
-                }
-            })
-            .catch(()=>{
-                 Toast("删除失败，请稍后重试")
-            })
+        async onDelete(info){
+            console.log(info.id)
+            let res = await this.$Http.delContact({id:info.id});
+            if(res.code === 200){
+                this.showEdit = false
+                await this.getList()
+                Toast("删除成功")
+            }
+            // this.instance.delete('/contact',{params:{id:info.id}})
+            // .then(res=>{
+            //     if(res.data.code === 200){
+            //         Toast("删除成功")
+            //         this.showEdit = false
+            //         this.getList()
+            //     }
+            // })
+            // .catch(()=>{
+            //      Toast("删除失败，请稍后重试")
+            // })
         }
     },
     mounted(){
         console.log("页面加载了");
-        创建axios实例
+        //创建axios实例
         this.instance = axios.create({
             baseURL:'http://localhost:9000/api',
             timeout:3000

@@ -20,7 +20,6 @@ for(let key in service){
         config={} //配置参数
     ){
         let url = api.url;
-        console.log(url)
         let newParams = {}; //如果是用form-data格式的话，进行格式转换
         //判断是否为form-data格式的判断
         if(params&&isFormData){
@@ -33,7 +32,7 @@ for(let key in service){
         }
         //不同请求方法的判断
         let response = {}; //请求返回值
-        if(api.method === 'put' || api.method === 'post' || api.method.patch){
+        if(api.method === 'put' || api.method === 'post' || api.method === 'patch'){
             try{
                 response = await instance[api.method](url,newParams,config);
             }catch(err){
@@ -42,7 +41,7 @@ for(let key in service){
         }else if(api.method === 'delete' || api.method === 'get'){
             config.params = newParams;
             try{
-                response = await instance[api.method](url,newParams,config);
+                response = await instance[api.method](url,config)
             }catch(err){
                 response = err; 
             }
@@ -59,19 +58,22 @@ instance.interceptors.request.use(config=>{
          forbidClick:true, //禁止点击
          message:'加载中...'
      });
+     return config;
 },err=>{
     //请求错误
     Toast.clear();
     Toast('请求错误，请稍后重试')
+    return Promise.reject(err)
 })
 //响应拦截器
 instance.interceptors.response.use(res=>{
     Toast.clear();
-    console.log("响应拦截")
     return res.data;
 },err=>{
     Toast.clear();
+    console.log(err)
     Toast('请求错误，请稍后重试')
+    return Promise.reject(err)
 })
 
 export default Http

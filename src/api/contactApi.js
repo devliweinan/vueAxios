@@ -6,15 +6,13 @@ const COUTACT_API = {
     },
     //新建联系人 form-data请求数据格式
     newContactForm:{
-        method:'psot',
-        url:'/contact/new/form',
-
+        method:'post',
+        url:'/contact/new/form'
     },
     //新建联系人 application/json请求数据格式
     newContactJson:{
-        method:'psot',
-        url:'/contact/new/json',
-        
+        method:'post',
+        url:'/contact/new/json' 
     },
     //编辑联系人
     editContact:{
